@@ -1,5 +1,5 @@
 import { DataTypes, Model } from 'sequelize';
-import sequelize from './index.js';
+import sequelize from './connection.js';
 // import Major from './major.js';
 // import User from './users.js';
 class Degree extends Model {}
@@ -11,20 +11,20 @@ Degree.init({
     primaryKey: true,
     allowNull: false
   },
-    name: {
-        type: DataTypes.STRING(45),
-        allowNull: false
+  name: {
+      type: DataTypes.STRING(45),
+      allowNull: false
+  },
+  createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
     },
-    createdAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-      },
-      updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-      }
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  }
 }, {sequelize, modelName: "Degree"})
 // associations
 // Degree.belongsToMany(Major, {through: "DegreeMajors"})
@@ -32,6 +32,5 @@ Degree.init({
 
 // sync operation
 
-Degree.sync({force: true})
 console.log("(re)created the degree table")
 export default Degree

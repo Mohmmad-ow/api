@@ -1,7 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
-import sequelize from './index.js';
-// import User from './users.js';
-
+import sequelize from './connection.js';
+import User from './users.js';
 class Blog extends Model {}
 
 Blog.init({
@@ -24,17 +23,12 @@ Blog.init({
         allowNull: false,
         defaultValue: DataTypes.NOW,
       },
-      updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-      }
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    }
 }, {sequelize, modelName: "Blog"})
-// associations
-// Blog.belongsTo(User)
-
 
 // sync operation
-Blog.sync({force: true})
-console.log("(re)created the Blog table")
 export default Blog

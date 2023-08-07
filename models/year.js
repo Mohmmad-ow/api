@@ -1,7 +1,5 @@
 import { DataTypes, Model } from 'sequelize';
-import sequelize from './index.js';
-// import Major from './major.js';
-// import User from './users.js';
+import sequelize from './connection.js';
 class Year extends Model {}
 
 Year.init({
@@ -11,28 +9,25 @@ Year.init({
     primaryKey: true,
     allowNull: false
   },
-    name: {
-        type: DataTypes.SMALLINT,
-        allowNull: false
-    },
-    createdAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-      },
-      updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-      }
+  name: {
+      type: DataTypes.SMALLINT,
+      allowNull: false
+  },
+  createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: DataTypes.NOW,
+  }
 }, {sequelize, modelName: "Year"})
 
-// associations
-// Year.belongsToMany(Major, {through: "MajorYears"})
-// Year.hasMany(User)
+
 
 // sync operation
-Year.sync({force: true})
 
 console.log("(re)created the year table")
 

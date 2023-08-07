@@ -21,12 +21,12 @@ export const register = async (req, res, next) => {
 }
 
 export const login = async (req, res, next) => {
+    console.log(req.body)
     if (req.body.length == 0) {
         return res.status(400).send({message: "Missing user information"})
     } 
     try {
-        const email = req.body.email;
-        const user = await User.findOne({ where: { email: email } })
+        const user = await User.findOne({where: { email: req.body.email }})
         console.log(user)
         const isPasswordCorrect = bcrypt.compareSync(req.body.password, user.password)
         
@@ -38,7 +38,7 @@ export const login = async (req, res, next) => {
         const {password, isAdmin, ...otherDetails} = user;
         res.cookie("access_token", token, {httpOnly: true}).status(200).json({details: {...otherDetails}, isAdmin})
     } catch (err) {
-        console.log("error in query")
+        console.log("error in query " + err)
         next(err)
     }
 } 
