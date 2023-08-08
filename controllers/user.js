@@ -3,6 +3,10 @@ import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
 dotenv.config();
+
+
+
+// Auth
 export const register = async (req, res, next) => {
     if (req.body.length == 0) {
         return res.status(400).send({message: "Missing user information"})
@@ -27,13 +31,12 @@ export const login = async (req, res, next) => {
     } 
     try {
         const user = await User.findOne({where: { email: req.body.email }})
-        console.log(user)
         const isPasswordCorrect = bcrypt.compareSync(req.body.password, user.password)
         
         if (!isPasswordCorrect) {
             res.status(400).json({message: "Wrong password or email"})
         } 
-        const token = jwt.sign({id: user.id, isAdmin: user.isAdmin}, process.env.SECRET_KEY, {expiresIn: "2h"})
+        const token = jwt.sign({id: user.id, isAdmin: user.isAdmin}, process.env.SECRET_KEY, {expiresIn: "1d"})
 
         const {password, isAdmin, ...otherDetails} = user;
         res.cookie("access_token", token, {httpOnly: true}).status(200).json({details: {...otherDetails}, isAdmin})
@@ -42,3 +45,9 @@ export const login = async (req, res, next) => {
         next(err)
     }
 } 
+
+export const logout = async (req, res, next) => {
+    req.cookies.access_token = null
+    res.status(200).json({message: "User logged out"})
+    next()
+}

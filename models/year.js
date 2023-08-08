@@ -10,7 +10,7 @@ Year.init({
     allowNull: false
   },
   name: {
-      type: DataTypes.SMALLINT,
+      type: DataTypes.STRING(255),
       allowNull: false
   },
   createdAt: {
@@ -28,7 +28,7 @@ Year.init({
 
 
 // sync operation
-
+// Year.sync({alter: true})
 console.log("(re)created the year table")
 
 

@@ -5,7 +5,8 @@ import { verifyToken } from "./util/verifyToken.js";
 
 // Routes
 import userRouter from "./routes/user.js";
-import blogRouter from "./routes/blog.js"
+import blogRouter from "./routes/blog.js";
+import yearRouter from "./routes/year.js";
 // DB tables
 import sequelize from "./models/connection.js";
 import "./models/associations.js"
@@ -21,11 +22,12 @@ app.get("/protected", verifyToken, (req, res) => {
 
 app.use("/users", userRouter)
 app.use("/blogs", verifyToken, blogRouter)
-
+app.use("/years", verifyToken, yearRouter)
   app.listen(3000,async () => {
     try {
 
       await sequelize.authenticate()  
+
       console.log("running on port 3000")
     } catch(err) {
       console.log(err)
