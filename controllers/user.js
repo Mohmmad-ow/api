@@ -12,11 +12,13 @@ export const register = async (req, res, next) => {
         return res.status(400).send({message: "Missing user information"})
     }
     try {
-        const {username, password, email} = req.body;
+        
+        const userData = req.body;
         const salt = bcrypt.genSaltSync(10)
-        const hash = bcrypt.hashSync(password, salt)
+        const hash = bcrypt.hashSync(req.body.password, salt)
+        userData.password = hash
         console.log(req.body)
-        await User.create({username: username, password: hash, email: email})
+        await User.create(userData)
         return res.status(200).json({message: "User has been created successfully"})
     } catch (err) {
         next(err)

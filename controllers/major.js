@@ -1,5 +1,5 @@
 import Major from "../models/major.js"
-
+import Degree from "../models/degree.js"
 
 export const createMajor = async (req, res, next) => {
     if (!req.body) {
@@ -7,7 +7,8 @@ export const createMajor = async (req, res, next) => {
     }
     try {
         const name = req.body.name
-        Major.create({name: name, UserId: req.user.id})
+        const newMajor = await Major.create({name: name, UserId: req.user.id})
+        req.body.DegreeId && await newMajor.addDegree(req.body.DegreeId);
         res.status(400).json({message: "Major created with the userId of " + req.user.id})
     } catch(err) {
         next(err)
@@ -27,7 +28,7 @@ export const findMajors = async (req, res, next) => {
 export const findMajor = async (req, res, next) => {
    const id = req.params.id
    try {
-    const major = await Major.findOne({where: {id: id}})
+    const major = await Major.findOne({where: {id: id}, include: Degree})
     let message;
     major ? message = major : message = "Major not found with this id: " + id  
     return res.status(200).json(message)
@@ -43,8 +44,12 @@ export const updateMajor = async (req, res, next) => {
     try {
         const name = req.body.name
         await Major.update({name: name}, {where: {id: req.params.id}})
-        console.log("Major updated")
-        res.status(200).json({message: "Major Updated"})
+        if (req.body.DegreeId) {
+            const major =  await Major.findByPk(req.params.id)
+            await major.addDegree(req.body.DegreeId)
+            return res.status(200).json({ message: "Major updated successfully and added degree" });
+        }
+        return res.status(200).json({ message: "Major updated successfully" });
     } catch(err) {
         next(err)
     }
