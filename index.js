@@ -7,6 +7,8 @@ import { verifyToken } from "./util/verifyToken.js";
 import userRouter from "./routes/user.js";
 import blogRouter from "./routes/blog.js";
 import yearRouter from "./routes/year.js";
+import majorRouter from "./routes/major.js"
+import degreeRouter from "./routes/degree.js"
 // DB tables
 import sequelize from "./models/connection.js";
 import "./models/associations.js"
@@ -23,6 +25,8 @@ app.get("/protected", verifyToken, (req, res) => {
 app.use("/users", userRouter)
 app.use("/blogs", verifyToken, blogRouter)
 app.use("/years", verifyToken, yearRouter)
+app.use("/majors", verifyToken, majorRouter)
+app.use("/degrees", verifyToken, degreeRouter)
   app.listen(3000,async () => {
     try {
 
