@@ -27,6 +27,7 @@ export const register = async (req, res, next) => {
 }
 
 export const login = async (req, res, next) => {
+    console.log("here")
     console.log(req.body)
     if (req.body.length == 0) {
         return res.status(400).send({message: "Missing user information"})
@@ -39,9 +40,9 @@ export const login = async (req, res, next) => {
             res.status(400).json({message: "Wrong password or email"})
         } 
         const token = jwt.sign({id: user.id, isAdmin: user.isAdmin}, process.env.SECRET_KEY, {expiresIn: "1d"})
-
+        
         const {password, isAdmin, ...otherDetails} = user;
-        res.cookie("access_token", token, {httpOnly: true}).status(200).json({details: {...otherDetails}, isAdmin})
+        res.status(200).json({details: {...otherDetails}, isAdmin, token})
     } catch (err) {
         console.log("error in query " + err)
         next(err)
