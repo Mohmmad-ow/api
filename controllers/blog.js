@@ -25,6 +25,20 @@ export const findBlogs = async (req, res, next) => {
     }
 }
 
+// export const homeBlogs = async (req, res, next) => {
+//     try {
+//         const data = {
+//             featured: null,
+//             important_announcements: null,
+//             yearBlogs: null,
+//             majorBlogs: null
+//         }
+
+//     } catch (err) {
+
+//     }
+// }
+
 export const findBlog = async (req, res, next) => {
    const id = req.params.id
    try {
