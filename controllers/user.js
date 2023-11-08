@@ -40,10 +40,9 @@ export const login = async (req, res, next) => {
            return res.status(400).json({message: "Wrong password or email"})
         } 
         const token = jwt.sign({id: user.id, isAdmin: user.isAdmin}, process.env.SECRET_KEY, {expiresIn: "1h"})
-        
+        console.log(process.env.SECRET_KEY)
         const {password, isAdmin, ...otherDetails} = user;
         console.log(token)
-        res.cookie("token", token, {sameSite: "none", secure: true, domain: "localhost", path: "/", httpOnly: true})
        return res.status(200).json({details: {...otherDetails}, isAdmin, token})
     } catch (err) {
         console.log("error in query " + err)
@@ -61,7 +60,6 @@ export const logout = async (req, res, next) => {
 export const findClientUser = async (req, res, next) => {
     const userId = req.user.id;
     try {
-
         const user = await User.findByPk(userId)
         res.status(200).json({user: user});
     } catch (err) {

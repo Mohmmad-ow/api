@@ -6,9 +6,10 @@ export const createBlog = async (req, res, next) => {
         res.status(400).json({message: "Blog info not inputted"})
     }
     try {
-        const {name, blog} = req.body
+        const {name, blog, image} = req.body
         console.log(req.user.id)
-        Blog.create({name: name, blog: blog, UserId: req.user.id})
+        console.log(req.body)
+        Blog.create({name: name, blog: blog, UserId: req.user.id, imgUrl: image})
         res.status(400).json({message: "blog created with the userId of " + req.user.id})
     } catch(err) {
         next(err)

@@ -13,10 +13,18 @@ import sequelize from "./models/connection.js";
 import "./models/associations.js"
 import cors from "cors"
 const app = express();
-app.use(cors({
+
+
+const corsOptions = {
+  origin: 'http://localhost:5173', // Replace with the origin you want to allow
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  optionsSuccessStatus: 204,
   credentials: true,
-  origin: "http://127.0.0.1:5173",
-}))
+  allowedHeaders: 'Content-Type, Authorization, X-Requested-With, Origin, Accept'
+
+};
+
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(cookieParser())
