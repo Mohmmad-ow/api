@@ -36,7 +36,7 @@ async function createAssociations() {
         //Tags associations
         Tag.belongsToMany(Blog, {through: "BlogsTags"})
 
-        await sequelize.sync({alter: true})
+        await sequelize.sync({})
         console.log("Added new stuff")
     } catch (err) {
         console.log(err)

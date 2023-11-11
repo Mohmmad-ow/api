@@ -18,6 +18,7 @@ export const createBlog = async (req, res, next) => {
 
 export const findBlogs = async (req, res, next) => {
     try {
+        console.log("Hi im here")
         const blogs = await Blog.findAll();
         return res.status(200).json(blogs);
     } catch(err) {
