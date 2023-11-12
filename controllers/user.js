@@ -39,7 +39,7 @@ export const login = async (req, res, next) => {
         if (!isPasswordCorrect) {
            return res.status(400).json({message: "Wrong password or email"})
         } 
-        const token = jwt.sign({id: user.id, isAdmin: user.isAdmin}, process.env.SECRET_KEY, {expiresIn: "1h"})
+        const token = jwt.sign({id: user.id, isAdmin: user.isAdmin}, process.env.SECRET_KEY, {expiresIn: "1d"})
         console.log(process.env.SECRET_KEY)
         const {password, isAdmin, ...otherDetails} = user;
         console.log(token)

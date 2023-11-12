@@ -6,10 +6,13 @@ export const createBlog = async (req, res, next) => {
         res.status(400).json({message: "Blog info not inputted"})
     }
     try {
-        const {name, blog, image} = req.body
+        console.log(req.body)
+        req.body.UserId = req.user.id
+        
+        
         console.log(req.user.id)
         console.log(req.body)
-        Blog.create({name: name, blog: blog, UserId: req.user.id, imgUrl: image})
+        Blog.create(req.body)
         res.status(400).json({message: "blog created with the userId of " + req.user.id})
     } catch(err) {
         next(err)
@@ -18,7 +21,6 @@ export const createBlog = async (req, res, next) => {
 
 export const findBlogs = async (req, res, next) => {
     try {
-        console.log("Hi im here")
         const blogs = await Blog.findAll();
         return res.status(200).json(blogs);
     } catch(err) {
@@ -27,19 +29,6 @@ export const findBlogs = async (req, res, next) => {
     }
 }
 
-// export const homeBlogs = async (req, res, next) => {
-//     try {
-//         const data = {
-//             featured: null,
-//             important_announcements: null,
-//             yearBlogs: null,
-//             majorBlogs: null
-//         }
-
-//     } catch (err) {
-
-//     }
-// }
 
 export const findBlog = async (req, res, next) => {
    const id = req.params.id
@@ -58,8 +47,9 @@ export const updateBlog = async (req, res, next) => {
         return res.status(400).json({message: "No data sent!"})    
     }
     try {
-        const {name, blog} = req.body;
-        await Blog.update({name: name, blog: blog}, {where: {id: req.params.id}})
+        console.log(req.body)
+        
+        await Blog.update(req.body, {where: {id: req.params.id}})
         console.log("Blog updated")
         res.status(200).json({message: "Blog Updated"})
     } catch(err) {
