@@ -7,13 +7,9 @@ export const createBlog = async (req, res, next) => {
     }
     try {
         console.log(req.body)
-        req.body.UserId = req.user.id
-        
-        
-        console.log(req.user.id)
-        console.log(req.body)
+        req.body.UserId = req.user.id        
         Blog.create(req.body)
-        res.status(400).json({message: "blog created with the userId of " + req.user.id})
+        res.status(200).json({message: "blog created with the userId of " + req.user.id})
     } catch(err) {
         next(err)
     }
@@ -61,8 +57,12 @@ export const updateBlog = async (req, res, next) => {
 export const deleteBlog = async (req, res, next) => {
     try {
         const id = req.params.id;
-        await Blog.destroy({where: {id: id}})
-        res.status(200).json({message: "Blog deleted"})
+        let blog = await Blog.findOne({where: {id: id}}).then((result) => {
+            res.status(200).json({message: "Blog deleted", blog: result.imgUrl  })
+
+            result.destroy()
+        })
+        
     } catch(err) {
         next(err)
     }
