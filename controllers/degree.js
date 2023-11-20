@@ -6,9 +6,9 @@ export const createDegree = async (req, res, next) => {
         res.status(400).json({message: "Degree info not inputted"})
     }
     try {
-        const name = req.body.name
+        const name = req.body.degree
         Degree.create({name: name, UserId: req.user.id})
-        res.status(400).json({message: "Degree created with the userId of " + req.user.id})
+        res.status(200).json({message: "Degree created with the userId of " + req.user.id})
     } catch(err) {
         next(err)
     }
@@ -41,7 +41,7 @@ export const updateDegree = async (req, res, next) => {
         return res.status(400).json({message: "No data sent!"})    
     }
     try {
-        const name = req.body.name
+        const name = req.body.degree
         await Degree.update({name: name}, {where: {id: req.params.id}})
         console.log("Degree updated")
         res.status(200).json({message: "Degree Updated"})
