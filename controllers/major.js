@@ -6,10 +6,11 @@ export const createMajor = async (req, res, next) => {
         res.status(400).json({message: "Major info not inputted"})
     }
     try {
-        const name = req.body.name
+        const name = req.body.major
         const newMajor = await Major.create({name: name, UserId: req.user.id})
+        console.log(req.body.DegreeId)
         req.body.DegreeId && await newMajor.addDegree(req.body.DegreeId);
-        res.status(400).json({message: "Major created with the userId of " + req.user.id})
+        res.status(200).json({message: "Major created with the userId of " + req.user.id})
     } catch(err) {
         next(err)
     }
@@ -42,7 +43,11 @@ export const updateMajor = async (req, res, next) => {
         return res.status(400).json({message: "No data sent!"})    
     }
     try {
-        const name = req.body.name
+        const name = req.body.major
+        console.log("Name: " + name)
+        console.log("Major: " + req.body.major)
+        console.log("Major: " + req.body)
+
         await Major.update({name: name}, {where: {id: req.params.id}})
         if (req.body.DegreeId) {
             const major =  await Major.findByPk(req.params.id)

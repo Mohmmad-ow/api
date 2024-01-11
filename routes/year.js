@@ -7,7 +7,7 @@ router.get("/year/:id", findYear);
 
 router.get("/all", findYears);
 
-router.post("/year/create", createYear);
+router.post("/create", createYear);
 
 router.put("/year/update/:id", updateYear);
 

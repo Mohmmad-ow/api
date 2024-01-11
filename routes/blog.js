@@ -1,4 +1,4 @@
-import {  createBlog, deleteBlog, findBlog, findBlogs, updateBlog } from "../controllers/blog.js";
+import {  createBlog, deleteBlog, findBlog, findBlogs, updateBlog, findBlogsByCategory } from "../controllers/blog.js";
 import { Router } from "express";
 
 const router = Router();
@@ -12,6 +12,9 @@ router.get("/blog/:id", findBlog);
 router.put("/blog/update/:id", updateBlog);
 
 router.delete("/blog/delete/:id", deleteBlog);
+
+
+router.get("/blog/custom/homepage", findBlogsByCategory)
 
 
 export default router

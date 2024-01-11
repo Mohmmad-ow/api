@@ -8,6 +8,9 @@ import blogRouter from "./routes/blog.js";
 import yearRouter from "./routes/year.js";
 import majorRouter from "./routes/major.js"
 import degreeRouter from "./routes/degree.js"
+import tagRouter from "./routes/tag.js"
+import profileRouter from "./routes/profile.js"
+import utilityRouter from "./routes/utility.js"
 // DB tables
 import sequelize from "./models/connection.js";
 import "./models/associations.js"
@@ -39,6 +42,9 @@ app.use("/blogs", verifyToken, blogRouter)
 app.use("/years", verifyToken, yearRouter)
 app.use("/majors", verifyToken, majorRouter)
 app.use("/degrees", verifyToken, degreeRouter)
+app.use("/tags", verifyToken, tagRouter)
+app.use("/profiles/", verifyToken, profileRouter)
+app.use("/utility", verifyToken, utilityRouter)
   app.listen(3000,async () => {
     try {
 

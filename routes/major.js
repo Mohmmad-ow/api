@@ -1,4 +1,4 @@
-import {  createMajor, deleteMajor, findMajor, findMajors, updateMajor } from "../controllers/major.js";
+import {  createMajor, deleteMajor, findMajor, findMajors, updateMajor,  } from "../controllers/major.js";
 import { Router } from "express";
 
 const router = Router();

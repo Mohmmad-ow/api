@@ -6,7 +6,7 @@ export const createYear = async (req, res, next) => {
         return res.status(400).json({message: "No data sent!"})    
     }
     try {
-        const name = req.body.name
+        const name = req.body.year
         await Year.create({name: name})
         console.log("Year has been created")
         return res.status(200).json({message: "Year has been created"})
@@ -39,7 +39,7 @@ export const updateYear = async (req, res, next) => {
         return res.status(400).json({message: "No data sent!"})    
     }
     try {
-        const name = req.body.name;
+        const name = req.body.year;
         await Year.update({name: name}, {where: {id: req.params.id}})
         console.log("Year updated")
         return res.status(200).json({message: "Year Updated"})

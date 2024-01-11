@@ -13,9 +13,13 @@ Blog.init({
         type: DataTypes.STRING(255),
         allowNull: false
     },
+    description: {
+        type: DataTypes.STRING(755),
+        allowNull: true
+    },
     blog: {
         type: DataTypes.TEXT,
-        allowNull: true
+        allowNull: false
     },
     imgUrl: {
       type: DataTypes.STRING(255),
