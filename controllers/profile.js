@@ -1,5 +1,7 @@
 import Profile from "../models/profile.js"
-
+import Major from "../models/major.js";
+import Degree from "../models/degree.js";
+import Year from "../models/year.js";
 
 export const createProfile = async (req, res, next) => {
     if (!req.body) {
@@ -27,13 +29,28 @@ export const findProfiles = async (req, res, next) => {
 
 export const findProfile = async (req, res, next) => {
    try {
-    const profile = await Profile.findOne({where: {UserId: req.user.id}})
-    const major = await profile.getMajor()
-    const degree = await profile.getDegree()
-    const year = await profile.getYear()
-    let message;
-    profile ? message = null : message = "Profile not found"   ;
-    return res.status(200).json({message,profile, major, degree, year})
+    const profile = await Profile.findOne({where: {UserId: req.user.id}, include: 
+        [
+            {
+                model: Major,
+                attributes: ['name', 'id']
+            },
+            {
+                model: Degree,
+                attributes: ['name', 'id']
+            },
+            {
+                model: Year,
+                attributes: ['name', 'id']
+            }
+        ]
+    }
+    )
+    // const major = await profile.getMajor()
+    // const degree = await profile.getDegree()
+    // const year = await profile.getYear()
+    
+    return res.status(200).json(profile)
    } catch (err) {
     next(err)
    }

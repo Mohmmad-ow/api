@@ -1,4 +1,5 @@
 import User from "../models/users.js"
+import Profile from "../models/profile.js"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
@@ -39,7 +40,7 @@ export const login = async (req, res, next) => {
         if (!isPasswordCorrect) {
            return res.status(400).json({message: "Wrong password or email"})
         } 
-        const token = jwt.sign({id: user.id, isAdmin: user.isAdmin}, process.env.SECRET_KEY, {expiresIn: "1d"})
+        const token = jwt.sign({id: user.id, isAdmin: user.isAdmin, isManger: user.isManger}, process.env.SECRET_KEY, {expiresIn: "1d"})
         console.log(process.env.SECRET_KEY)
         const {password, isAdmin, ...otherDetails} = user;
         console.log(token)
@@ -57,13 +58,30 @@ export const logout = async (req, res, next) => {
 }
 
 
+export const getAllUsers = async (req, res, next) => {
+    try {
+        const users = await User.findAll();
+        res.status(200).json({users: users});
+    } catch(err) {
+        console.error(err)
+        res.status(400).json({message: err})
+    }
+}
+
+
 export const findClientUser = async (req, res, next) => {
     const userId = req.user.id;
     try {
-        const user = await User.findByPk(userId)
+        const user = await User.findByPk(userId,
+             {include: [
+                {
+                    model: Profile,
+                   
+             }
+            ]
+            })
         res.status(200).json({user: user});
     } catch (err) {
         return next(err)
     }
-
 }

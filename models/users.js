@@ -29,6 +29,11 @@ User.init(
       defaultValue: false,
       allowNull: false
     },
+    isManger: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

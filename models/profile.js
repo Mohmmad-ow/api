@@ -19,7 +19,11 @@ Profile.init(
       type: DataTypes.TEXT,
       allowNull: false
     },
-    
+    // isBlogger: {
+    //   type: DataTypes.BOOLEAN,
+    //   defaultValue: false,
+    //   allowNull: false
+    // },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

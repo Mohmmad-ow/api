@@ -11,9 +11,9 @@ async function createAssociations() {
 
         // User associations
         // User.hasMany(Blog); 
-        User.belongsTo(Year);
-        User.belongsTo(Major); 
-        User.belongsTo(Degree); 
+        // User.belongsTo(Year);
+        // User.belongsTo(Major); 
+        // User.belongsTo(Degree); 
         User.hasOne(Profile)
 
 
@@ -29,7 +29,7 @@ async function createAssociations() {
         //Major associations
         Major.belongsToMany(Degree, {through: "DegreeMajors"})
         Major.belongsToMany(Year, {through: "MajorYears"})
-        Major.hasMany(User)
+        // Major.hasMany(User)
         Major.hasMany(Profile)
 
 
@@ -41,12 +41,12 @@ async function createAssociations() {
 
         // Degree associations
         Degree.belongsToMany(Major, {through: "DegreeMajors"})
-        Degree.hasMany(User)
+        // Degree.hasMany(User)
         Degree.hasMany(Profile)
         
         // Year associations
         Year.belongsToMany(Major, {through: "MajorYears"})
-        Year.hasMany(User)
+        // Year.hasMany(User)
         Year.hasMany(Profile)
 
         //Tags associations
