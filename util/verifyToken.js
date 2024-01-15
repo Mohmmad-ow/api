@@ -13,7 +13,6 @@ export const verifyToken = async (req, res, next) => {
     }
     jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
         if (err) return res.status(403).json({message: "Token is Invalid! " + err})
-        // console.log(user)
         req.user = user;
         next()
     })

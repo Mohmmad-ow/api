@@ -34,17 +34,21 @@ export const login = async (req, res, next) => {
         return res.status(400).send({message: "Missing user information"})
     } 
     try {
-        const user = await User.findOne({where: { email: req.body.email }})
+        const user = await User.findOne({where: { email: req.body.email },include: [
+            {
+                model: Profile
+            }
+        ]})
         const isPasswordCorrect = bcrypt.compareSync(req.body.password, user.password)
         
         if (!isPasswordCorrect) {
            return res.status(400).json({message: "Wrong password or email"})
         } 
-        const token = jwt.sign({id: user.id, isAdmin: user.isAdmin, isManger: user.isManger}, process.env.SECRET_KEY, {expiresIn: "1d"})
+        const token = jwt.sign({id: user.id, profileId: user.Profile ? user.Profile.id : null , isAdmin: user.isAdmin, isManger: user.isManger, }, process.env.SECRET_KEY, {expiresIn: "1d"})
         console.log(process.env.SECRET_KEY)
         const {password, isAdmin, ...otherDetails} = user;
-        console.log(token)
-       return res.status(200).json({details: {...otherDetails}, isAdmin, token})
+        console.log(user.Profile.id)
+       return res.status(200).json({isAdmin: isAdmin, token})
     } catch (err) {
         console.log("error in query " + err)
         next(err)
@@ -73,12 +77,12 @@ export const findClientUser = async (req, res, next) => {
     const userId = req.user.id;
     try {
         const user = await User.findByPk(userId,
-             {include: [
-                {
-                    model: Profile,
-                   
-             }
-            ]
+             {
+                include: [
+                            {
+                                model: Profile,
+                            }
+                        ]
             })
         res.status(200).json({user: user});
     } catch (err) {

@@ -2,6 +2,10 @@ import Profile from "../models/profile.js"
 import Major from "../models/major.js";
 import Degree from "../models/degree.js";
 import Year from "../models/year.js";
+import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
+import dotenv from "dotenv"
+dotenv.config(); 
 
 export const createProfile = async (req, res, next) => {
     if (!req.body) {
@@ -9,9 +13,10 @@ export const createProfile = async (req, res, next) => {
     }
     try {
         req.body.UserId = req.user.id;
-        await Profile.create({...req.body})
-       
-        res.status(200).json({message: "Profile created with the userId of " + req.user.id});
+        const profile =  await Profile.create({...req.body})
+        const token = jwt.sign({id: req.user.id,profileId: profile.id, isAdmin: req.user.isAdmin, isManger: req.user.isManger}, process.env.SECRET_KEY, {expiresIn: "1d"})
+        console.log(profile)
+        res.status(200).json({message: "Profile created with the userId of " + req.user.id, token});
     } catch(err) {
         next(err)
     }
@@ -46,9 +51,6 @@ export const findProfile = async (req, res, next) => {
         ]
     }
     )
-    // const major = await profile.getMajor()
-    // const degree = await profile.getDegree()
-    // const year = await profile.getYear()
     
     return res.status(200).json(profile)
    } catch (err) {

@@ -11,7 +11,7 @@ export const createBlog = async (req, res, next) => {
         console.log(req.body)
         const profile = await Profile.findOne({where: {UserId: req.user.id}})
         console.log(profile)
-        req.body.ProfileId = profile.id
+        req.body.ProfileId = profile.id;
 
         Blog.create(req.body)
         res.status(200).json({message: "blog created with the userId of " + req.user.id})
@@ -37,9 +37,13 @@ export const findBlog = async (req, res, next) => {
    try {
 
     const blog = await Blog.findOne({where: {id: id}, include: Profile})
+    if (blog.ProfileId == req.profile.id)
+    {
+    
+    }
     let message;
-    blog ? message = null : message = "Blog not found with this id: " + id  
-    return res.status(200).json(blog)
+    blog ? message = null : message = "Blog not found with this id: " + id;
+    return res.status(200).json(blog);
    } catch (err) {
     next(err)
    }
