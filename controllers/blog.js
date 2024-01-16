@@ -9,9 +9,7 @@ export const createBlog = async (req, res, next) => {
     }
     try {
         console.log(req.body)
-        const profile = await Profile.findOne({where: {UserId: req.user.id}})
-        console.log(profile)
-        req.body.ProfileId = profile.id;
+        req.body.ProfileId = req.user.profileId;
 
         Blog.create(req.body)
         res.status(200).json({message: "blog created with the userId of " + req.user.id})
@@ -36,14 +34,10 @@ export const findBlog = async (req, res, next) => {
    const id = req.params.id
    try {
 
-    const blog = await Blog.findOne({where: {id: id}, include: Profile})
-    if (blog.ProfileId == req.profile.id)
-    {
-    
-    }
+    const blog = await Blog.findOne({where: {id: id}, include: Profile});
     let message;
     blog ? message = null : message = "Blog not found with this id: " + id;
-    return res.status(200).json(blog);
+    return res.status(200).json({blog: blog, isSameUser: (req.user.isAdmin || req.params.id == req.user.profileId)});
    } catch (err) {
     next(err)
    }
@@ -51,16 +45,19 @@ export const findBlog = async (req, res, next) => {
 
 export const updateBlog = async (req, res, next) => {
     if (!req.body) {
-        return res.status(400).json({message: "No data sent!"})    
+        return res.status(400).json({message: "No data sent!"});
     }
     try {
-        console.log(req.body)
         
-        await Blog.update(req.body, {where: {id: req.params.id}})
-        console.log("Blog updated")
-        res.status(200).json({message: "Blog Updated"})
+        if (!(req.user.isAdmin || req.user.profileId == req.params.id)) {
+            await Blog.update(req.body, {where: {id: req.params.id}});
+            console.log("Blog updated");
+            return res.status(200).json({message: "Blog Updated"});
+        } else {
+            return res.status(403).json({message: "user isn't allowed to update this post"});
+        }
     } catch(err) {
-        next(err)
+        next(err);
     }
 
 }
@@ -68,11 +65,14 @@ export const updateBlog = async (req, res, next) => {
 export const deleteBlog = async (req, res, next) => {
     try {
         const id = req.params.id;
-        let blog = await Blog.findOne({where: {id: id}}).then((result) => {
-            res.status(200).json({message: "Blog deleted", blog: result.imgUrl  })
-
+        if (!(req.user.profileId == id || req.user.isAdmin)) {
+            return res.status(403).json({message: "you're not allowed to delete this post"})
+        } else {
+            let blog = await Blog.findOne({where: {id: id}}).then((result) => {
+            return res.status(200).json({message: "Blog deleted", blog: result.imgUrl  })
             result.destroy()
-        })
+            })
+        }
         
     } catch(err) {
         next(err)
@@ -83,12 +83,12 @@ export const deleteBlog = async (req, res, next) => {
 // specific requests
 
 export const findBlogsByProfile = async (req, res, next) => {
-    const id = req.params.id
+    const id = req.params.id;
     try {
-        const blogs = await Blog.findAll({where: {ProfileId: id}})
-        return res.status(200).json(blogs)
+        const blogs = await Blog.findAll({where: {ProfileId: id}});
+        return res.status(200).json(blogs);
     } catch(err) {
-        next(err)
+        next(err);
     }
 
 }

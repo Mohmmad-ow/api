@@ -1,4 +1,4 @@
-import {  createBlog, deleteBlog, findBlog, findBlogs, updateBlog, findBlogsByCategory } from "../controllers/blog.js";
+import {  createBlog, deleteBlog, findBlog, findBlogs, updateBlog, findBlogsByCategory, findBlogsByProfile } from "../controllers/blog.js";
 import { Router } from "express";
 
 const router = Router();

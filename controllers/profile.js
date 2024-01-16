@@ -2,9 +2,9 @@ import Profile from "../models/profile.js"
 import Major from "../models/major.js";
 import Degree from "../models/degree.js";
 import Year from "../models/year.js";
-import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 import dotenv from "dotenv"
+import Blog from "../models/blog.js";
 dotenv.config(); 
 
 export const createProfile = async (req, res, next) => {
@@ -32,6 +32,43 @@ export const findProfiles = async (req, res, next) => {
     }
 }
 
+export const findProfileById = async (req, res, next) => {
+    console.log("other profile")
+    if (!(req.user.isAdmin || req.params.id == req.user.profileId)) {
+        console.log("not user")
+        try {
+            const profile = await Profile.findOne({where: {UserId: req.user.id}, include: 
+                [
+                    {
+                        model: Major,
+                        attributes: ['name', 'id']
+                    },
+                    {
+                        model: Degree,
+                        attributes: ['name', 'id']
+                    },
+                    {
+                        model: Year,
+                        attributes: ['name', 'id']
+                    },
+                    {
+                        model: Blog
+                    }
+                ]
+            }
+            )
+            console.log("other profile")
+            res.status(200).json({profile, isOwner: false})
+        } catch(err) {
+            console.error(err)
+            next(err)
+        }
+    } else {
+        console.log("view my profile")
+        res.redirect("/profiles/profile/v2/myprofile")
+    }
+}
+
 export const findProfile = async (req, res, next) => {
    try {
     const profile = await Profile.findOne({where: {UserId: req.user.id}, include: 
@@ -47,12 +84,16 @@ export const findProfile = async (req, res, next) => {
             {
                 model: Year,
                 attributes: ['name', 'id']
+            },
+            {
+                model: Blog
             }
         ]
     }
     )
+
     
-    return res.status(200).json(profile)
+    return res.status(200).json({profile, isOwner: true})
    } catch (err) {
     next(err)
    }
