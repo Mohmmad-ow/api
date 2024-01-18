@@ -11,6 +11,10 @@ import degreeRouter from "./routes/degree.js"
 import tagRouter from "./routes/tag.js"
 import profileRouter from "./routes/profile.js"
 import utilityRouter from "./routes/utility.js"
+
+// homepage route
+import { findBlogsByCategory } from "./controllers/blog.js";
+
 // DB tables
 import sequelize from "./models/connection.js";
 import "./models/associations.js"
@@ -45,6 +49,8 @@ app.use("/degrees", verifyToken, degreeRouter)
 app.use("/tags", verifyToken, tagRouter)
 app.use("/profiles/", verifyToken, profileRouter)
 app.use("/utility", verifyToken, utilityRouter)
+
+app.get("/homepage", findBlogsByCategory)
   app.listen(3000,async () => {
     try {
 

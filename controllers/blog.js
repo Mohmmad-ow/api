@@ -146,24 +146,28 @@ export const findBlogsBetweenDates  = async (req, res, next) => {
 }
 
 export const findBlogsByCategory = async (req, res, next) => {
-    try {
-        const blogs = await Blog.findAll({
-            include: [
-                {
-                    model: Tag,
-                    where: {name: {[Op.in]: ['announcement', 'Featured', 'Software']}},
-                    attributes: ['name']
-                },
-                {
-                    model: Profile,
-                    attributes: ['full_name']
-                }
-            ],
-        })
+    
+            try {
+                console.log(req.user)
+                const blogs = await Blog.findAll({
+                    include: [
+                    {
+                        model: Tag,
+                        where: {id: {[Op.in]: [1, 2, 3]}},
+                        attributes: ['name']
+                    },
+                    {
+                        model: Profile,
+                        attributes: ['full_name']
+                    }
+                ],
+            })
+            
+            return res.status(200).json(blogs)
+        } catch(err) {
+            return next(err)
+        }
+    
 
-        return res.status(200).json(blogs)
-    } catch(err) {
-        next(err)
-    }
 
 }
