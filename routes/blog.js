@@ -1,4 +1,4 @@
-import {  createBlog, deleteBlog, findBlog, findBlogs, updateBlog, findBlogsByCategory, findBlogsByProfile } from "../controllers/blog.js";
+import {  createBlog, deleteBlog, findBlog, findBlogs, updateBlog, findBlogsByCategory, findBlogsByProfile,findBlogsBySearch } from "../controllers/blog.js";
 import { Router } from "express";
 
 const router = Router();
@@ -13,6 +13,7 @@ router.put("/blog/update/:id", updateBlog);
 
 router.delete("/blog/delete/:id", deleteBlog);
 
+router.post("/experiment", findBlogsBySearch)
 
 // router.get("/blog/custom/homepage", findBlogsByCategory)
 

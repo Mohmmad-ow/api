@@ -1,7 +1,7 @@
 import Blog from "../models/blog.js"
 import Profile from "../models/profile.js"
 import Tag from "../models/tag.js"
-import { Op } from 'sequelize'
+import { Op, fn, col,literal } from 'sequelize'
 
 export const createBlog = async (req, res, next) => {
     if (!req.body) {
@@ -112,16 +112,16 @@ export const findBlogsByTag = async (req, res, next) => {
     }
 }
 
-export const findBlogsBySearch = async (req, res, next) => {
-    const search = req.params.search
-    try {
-        const blogs = await Blog.findAll({where: {title: {[Op.like]: `%${search}%`}}})
-        return res.status(200).json(blogs)
-    } catch(err) {
-        next(err)
-    }
+// export const findBlogsBySearch = async (req, res, next) => {
+//     const search = req.params.search
+//     try {
+//         const blogs = await Blog.findAll({where: {title: {[Op.like]: `%${search}%`}}})
+//         return res.status(200).json(blogs)
+//     } catch(err) {
+//         next(err)
+//     }
 
-}
+// }
 
 export const findBlogsByDate = async (req, res, next) => {
     const date = req.params.date
@@ -144,6 +144,44 @@ export const findBlogsBetweenDates  = async (req, res, next) => {
     }
 
 }
+export const findBlogsBySearch = async (req, res, next) => {
+    const search = req.body
+    const whereSearch = {}
+    const whereSearchIncludeTags = {}
+    console.log(search)
+    if (search.name) {
+        whereSearch.name = {[Op.like]: `%${search.name}%`}
+    }
+    if (search.date) {
+
+        if (search.date.length == 2) {
+            const startDate = new Date(search.date[0]);
+            const endDate = new Date(search.date[1]);
+            whereSearch.createdAt = {[Op.between]: [startDate, endDate]}
+        } else if (search.date.length == 1) {
+            const startDate = new Date(search.date[0]);
+            const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000 );
+            whereSearch.createdAt = {[Op.between]: [startDate, endDate]}
+        }
+    }
+    if (search.tags.length > 0) {
+        whereSearchIncludeTags.id = {[Op.in]: search.tags}
+    }
+    try {
+        const blogs = await Blog.findAll({where: whereSearch, 
+         include: whereSearchIncludeTags ? [{
+            model: Tag,
+            where: whereSearchIncludeTags
+        }] : []
+    });
+        console.log(blogs)
+        return res.status(200).json(blogs)
+    } catch (err) {
+        console.log(err)
+        next(err)
+    }
+}
+
 
 export const findBlogsByCategory = async (req, res, next) => {
     
@@ -167,7 +205,5 @@ export const findBlogsByCategory = async (req, res, next) => {
         } catch(err) {
             return next(err)
         }
-    
-
-
 }
+
