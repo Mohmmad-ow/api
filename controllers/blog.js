@@ -148,7 +148,6 @@ export const findBlogsBySearch = async (req, res, next) => {
     const search = req.body
     const whereSearch = {}
     const whereSearchIncludeTags = {}
-    console.log(search)
     if (search.name) {
         whereSearch.name = {[Op.like]: `%${search.name}%`}
     }
@@ -174,10 +173,8 @@ export const findBlogsBySearch = async (req, res, next) => {
             where: whereSearchIncludeTags
         }] : []
     });
-        console.log(blogs)
         return res.status(200).json(blogs)
     } catch (err) {
-        console.log(err)
         next(err)
     }
 }
