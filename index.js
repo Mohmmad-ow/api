@@ -11,6 +11,7 @@ import degreeRouter from "./routes/degree.js"
 import tagRouter from "./routes/tag.js"
 import profileRouter from "./routes/profile.js"
 import utilityRouter from "./routes/utility.js"
+import CommentsRouter from "./routes/comment.js"
 
 // homepage route
 import { findBlogsByCategory } from "./controllers/blog.js";
@@ -42,13 +43,18 @@ app.get("/protected", (req, res) => {
 })
 
 app.use("/users", userRouter)
+
 app.use("/blogs", verifyToken, blogRouter)
+
+app.use("/blogs", verifyToken, CommentsRouter)
+
 app.use("/years", verifyToken, yearRouter)
 app.use("/majors", verifyToken, majorRouter)
 app.use("/degrees", verifyToken, degreeRouter)
 app.use("/tags", verifyToken, tagRouter)
 app.use("/profiles/", verifyToken, profileRouter)
 app.use("/utility", verifyToken, utilityRouter)
+
 
 app.get("/homepage", findBlogsByCategory)
   app.listen(3000,async () => {
