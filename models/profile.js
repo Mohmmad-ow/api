@@ -17,7 +17,6 @@ Profile.init(
     },
     profile_pic: {
       type: DataTypes.TEXT,
-      allowNull: false
     },
     // isBlogger: {
     //   type: DataTypes.BOOLEAN,

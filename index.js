@@ -12,6 +12,7 @@ import tagRouter from "./routes/tag.js"
 import profileRouter from "./routes/profile.js"
 import utilityRouter from "./routes/utility.js"
 import CommentsRouter from "./routes/comment.js"
+import LikeRouter from "./routes/like.js"
 
 // homepage route
 import { findBlogsByCategory } from "./controllers/blog.js";
@@ -49,12 +50,18 @@ app.use("/blogs", verifyToken, blogRouter)
 app.use("/blogs", verifyToken, CommentsRouter)
 
 app.use("/years", verifyToken, yearRouter)
+
 app.use("/majors", verifyToken, majorRouter)
+
 app.use("/degrees", verifyToken, degreeRouter)
+
 app.use("/tags", verifyToken, tagRouter)
+
 app.use("/profiles/", verifyToken, profileRouter)
+
 app.use("/utility", verifyToken, utilityRouter)
 
+app.use("/likes", verifyToken, LikeRouter)
 
 app.get("/homepage", findBlogsByCategory)
   app.listen(3000,async () => {

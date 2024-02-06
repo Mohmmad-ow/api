@@ -2,14 +2,15 @@ import Blog from "../models/blog.js";
 import Profile from "../models/profile.js";
 import Tag from "../models/tag.js";
 import Comment from "../models/comments.js";
-import { Op, fn, col, literal } from "sequelize";
+import Like from "../models/like.js";
+import { Op, literal } from "sequelize";
 
 export const createBlog = async (req, res, next) => {
   if (!req.body) {
     res.status(400).json({ message: "Blog info not inputted" });
   }
   try {
-    console.log(req.body);
+    
     req.body.ProfileId = req.user.profileId;
 
     Blog.create(req.body);
@@ -23,7 +24,6 @@ export const createBlog = async (req, res, next) => {
 
 export const findBlogs = async (req, res, next) => {
   try {
-    console.log(req.header);
     const blogs = await Blog.findAll();
     return res.status(200).json(blogs);
   } catch (err) {
@@ -33,19 +33,35 @@ export const findBlogs = async (req, res, next) => {
 
 export const findBlog = async (req, res, next) => {
   const id = req.params.id;
+  console.log(req.user.profileId)
   try {
     const blog = await Blog.findOne({
       where: { id: id },
+      attributes: [
+        [literal('(SELECT COUNT(*) FROM Likes WHERE BlogId = Blog.id)'), 'likeCount'],
+        [literal(`(SELECT COUNT(*) FROM Likes WHERE BlogId = Blog.id AND ProfileId = ${req.user.profileId})`), 'hasLiked'],
+        'id',
+        'name',
+        'blog',
+        'description',
+        'createdAt',
+        'updatedAt',
+        'imgUrl'
+      ],
       include: [
         {
           model: Profile,
         },
         {
-            model: Comment,
-            include: [{model: Profile}]
+          model: Comment,
+          include: [{ model: Profile }],
+          order: [['createdAt', 'DESC']],
+
         }
       ],
     });
+    
+
     let message;
     blog ? (message = null) : (message = "Blog not found with this id: " + id);
     return res
@@ -59,6 +75,7 @@ export const findBlog = async (req, res, next) => {
   }
 };
 
+
 export const updateBlog = async (req, res, next) => {
   if (!req.body) {
     return res.status(400).json({ message: "No data sent!" });
@@ -66,7 +83,6 @@ export const updateBlog = async (req, res, next) => {
   try {
     if (!(req.user.isAdmin || req.user.profileId == req.params.id)) {
       await Blog.update(req.body, { where: { id: req.params.id } });
-      console.log("Blog updated");
       return res.status(200).json({ message: "Blog Updated" });
     } else {
       return res
@@ -128,17 +144,6 @@ export const findBlogsByTag = async (req, res, next) => {
     next(err);
   }
 };
-
-// export const findBlogsBySearch = async (req, res, next) => {
-//     const search = req.params.search
-//     try {
-//         const blogs = await Blog.findAll({where: {title: {[Op.like]: `%${search}%`}}})
-//         return res.status(200).json(blogs)
-//     } catch(err) {
-//         next(err)
-//     }
-
-// }
 
 export const findBlogsByDate = async (req, res, next) => {
   const date = req.params.date;
@@ -203,7 +208,6 @@ export const findBlogsBySearch = async (req, res, next) => {
 
 export const findBlogsByCategory = async (req, res, next) => {
   try {
-    console.log(req.user);
     const blogs = await Blog.findAll({
       include: [
         {

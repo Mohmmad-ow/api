@@ -47,7 +47,6 @@ export const login = async (req, res, next) => {
         const token = jwt.sign({id: user.id, profileId: user.Profile ? user.Profile.id : null , isAdmin: user.isAdmin, isManger: user.isManger, }, process.env.SECRET_KEY, {expiresIn: "1d"})
         console.log(process.env.SECRET_KEY)
         const {password, isAdmin, ...otherDetails} = user;
-        console.log(user.Profile.id)
        return res.status(200).json({isAdmin: isAdmin, token})
     } catch (err) {
         console.log("error in query " + err)

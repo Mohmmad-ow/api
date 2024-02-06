@@ -15,7 +15,6 @@ export const createProfile = async (req, res, next) => {
         req.body.UserId = req.user.id;
         const profile =  await Profile.create({...req.body})
         const token = jwt.sign({id: req.user.id,profileId: profile.id, isAdmin: req.user.isAdmin, isManger: req.user.isManger}, process.env.SECRET_KEY, {expiresIn: "1d"})
-        console.log(profile)
         res.status(200).json({message: "Profile created with the userId of " + req.user.id, token});
     } catch(err) {
         next(err)
@@ -33,11 +32,10 @@ export const findProfiles = async (req, res, next) => {
 }
 
 export const findProfileById = async (req, res, next) => {
-    console.log("other profile")
+    
     if (!(req.user.isAdmin || req.params.id == req.user.profileId)) {
-        console.log("not user")
         try {
-            const profile = await Profile.findOne({where: {UserId: req.user.id}, include: 
+            const profile = await Profile.findOne({where: {id: req.params.id}, include: 
                 [
                     {
                         model: Major,
@@ -57,21 +55,23 @@ export const findProfileById = async (req, res, next) => {
                 ]
             }
             )
-            console.log("other profile")
-            res.status(200).json({profile, isOwner: false})
+            const blogs = await profile.getBlogs()
+            
+            res.status(200).json({profile,isOwner: false, blogs: blogs})
         } catch(err) {
             console.error(err)
             next(err)
         }
     } else {
-        console.log("view my profile")
+        req.profileId = req.params.id
         res.redirect("/profiles/profile/v2/myprofile")
     }
 }
 
 export const findProfile = async (req, res, next) => {
    try {
-    const profile = await Profile.findOne({where: {UserId: req.user.id}, include: 
+
+    const profile = await Profile.findOne({where: {id: req.user.profileId}, include:
         [
             {
                 model: Major,
@@ -82,18 +82,19 @@ export const findProfile = async (req, res, next) => {
                 attributes: ['name', 'id']
             },
             {
-                model: Year,
-                attributes: ['name', 'id']
+                model: Blog
             },
             {
-                model: Blog
+                model: Year,
+                attributes: ['name', 'id']
             }
         ]
     }
     )
+    const blogs = await profile.getBlogs()
+    profile.Blogs = blogs
 
-    
-    return res.status(200).json({profile, isOwner: true})
+    return res.status(200).json({profile, isOwner: true, Blogs: blogs})
    } catch (err) {
     next(err)
    }
@@ -104,9 +105,8 @@ export const updateProfile = async (req, res, next) => {
         return res.status(400).json({message: "No data sent!"})    
     }
     try {
-        console.log(req.body)
+       
         await Profile.update({...req.body}, {where: {userId: req.user.id}})
-        console.log("Tag updated")
         res.status(200).json({message: "Profile Updated"})
     } catch(err) {
         next(err)

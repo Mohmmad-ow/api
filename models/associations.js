@@ -7,10 +7,13 @@ import Tag from "./tag.js";
 import sequelize from "./connection.js";
 import Profile from "./profile.js";
 import Comment from "./comments.js";
-
+import Like from "./like.js";
 async function createAssociations() {
     try {
 
+        // likes
+        Like.belongsTo(Profile);
+        Like.belongsTo(Blog)
 
         // comment association
         Comment.belongsTo(Blog);
@@ -23,7 +26,8 @@ async function createAssociations() {
         // Profile association
         Profile.hasMany(Blog);
         Profile.hasMany(Comment);
-        Profile.belongsToMany(Blog, {through: "Likes"});
+        // Profile.belongsToMany(Blog, {through: "Likes", as: "Like"});
+        Profile.hasMany(Like)
         Profile.belongsTo(User);
         Profile.belongsTo(Major);
         Profile.belongsTo(Degree);
@@ -41,7 +45,8 @@ async function createAssociations() {
         // Blog associations
         Blog.hasMany(Comment);
         Blog.belongsTo(Profile);
-        Blog.belongsToMany(Profile, {through: "Likes"});
+        // Blog.belongsToMany(Profile, {through: "Likes", as: "Like"});
+        Blog.hasMany(Like)
         Blog.belongsToMany(Tag, {through: "BlogsTags"});
 
 
@@ -58,7 +63,7 @@ async function createAssociations() {
         //Tags associations
         Tag.belongsToMany(Blog, {through: "BlogsTags"});
 
-        await sequelize.sync({alter: true})
+        await sequelize.sync({})
         console.log("Added new stuff")
     } catch (err) {
         console.log(err)
