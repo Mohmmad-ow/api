@@ -37,27 +37,21 @@ async function createAssociations() {
         
         
         //Major associations
-        Major.belongsToMany(Degree, {through: "DegreeMajors"});
-        Major.belongsToMany(Year, {through: "MajorYears"});
+        
         Major.hasMany(Profile);
 
 
         // Blog associations
         Blog.hasMany(Comment);
         Blog.belongsTo(Profile);
-        // Blog.belongsToMany(Profile, {through: "Likes", as: "Like"});
         Blog.hasMany(Like)
         Blog.belongsToMany(Tag, {through: "BlogsTags"});
 
 
         // Degree associations
-        Degree.belongsToMany(Major, {through: "DegreeMajors"});
         Degree.hasMany(Profile);
         
         // Year associations
-        Year.belongsToMany(Major, {through: "MajorYears"});
-
-        // Year.hasMany(User)
         Year.hasMany(Profile);
 
         //Tags associations

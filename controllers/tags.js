@@ -18,7 +18,7 @@ export const createTag = async (req, res, next) => {
 
 export const findTags = async (req, res, next) => {
     try {
-        const tags = await Tags.findAll();
+        const tags = await Tags.findAll({order: [['createdAt', 'DESC']] });
         return res.status(200).json(tags);
     } catch(err) {
         
