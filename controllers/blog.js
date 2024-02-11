@@ -4,13 +4,14 @@ import Tag from "../models/tag.js";
 import Comment from "../models/comments.js";
 import Like from "../models/like.js";
 import { Op, literal } from "sequelize";
+import sequelize from "../models/connection.js";
 
 export const createBlog = async (req, res, next) => {
   if (!req.body) {
     res.status(400).json({ message: "Blog info not inputted" });
   }
   try {
-    
+
     req.body.ProfileId = req.user.profileId;
 
     Blog.create(req.body);
@@ -33,7 +34,6 @@ export const findBlogs = async (req, res, next) => {
 
 export const findBlog = async (req, res, next) => {
   const id = req.params.id;
-  console.log(req.user.profileId)
   try {
     const blog = await Blog.findOne({
       where: { id: id },
@@ -60,7 +60,7 @@ export const findBlog = async (req, res, next) => {
         }
       ],
     });
-    
+
 
     let message;
     blog ? (message = null) : (message = "Blog not found with this id: " + id);
@@ -93,6 +93,74 @@ export const updateBlog = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getBlogTags = async (req, res, next) => {
+  try {
+    const blogId = req.params.id;
+    // Fetch tags and their association with the given blog ID in a single query
+    const tags = await Tag.findAll({
+      include: {
+        model: Blog,
+        where: { id: blogId },
+        attributes: ['id'],
+        
+        required: false, // Use left join to include tags even if they are not associated with the blog
+
+      }  
+  });
+  
+
+    res.status(200).json(tags);
+  }catch (err) {
+    
+    next(err);
+  }
+}
+
+export const updateBlogTags = async (req, res, next) => {
+  try {
+    const blog = await Blog.findOne({
+      where: { id: req.params.id },
+      include: [
+        { model: Tag },
+        { model: Profile }
+      ]
+    });
+
+    // Check if the user has permission to update tags
+    if (req.user.profileId !== blog.Profile.id && !req.user.isAdmin && !req.user.isManger) {
+      return res.status(403).json({ message: "You are not authorized to update tags for this blog." });
+    }
+
+    // Extract 'add' and 'remove' arrays from the request body
+    const { add, remove } = req.body;
+
+    // Create associations to be added
+    const associationsToAdd = add.map(tagId => ({
+      BlogId: req.params.id,
+      TagId: tagId
+    }));
+
+    // Remove associations based on 'remove' array (if provided)
+    if (remove && remove.length > 0) {
+      await sequelize.models.BlogsTags.destroy({
+        where: {
+          BlogId: req.params.id,
+          TagId: remove
+        }
+      });
+    }
+
+    // Add associations
+    await sequelize.models.BlogsTags.bulkCreate(associationsToAdd);
+
+    return res.status(200).json({ message: "Tags updated successfully." });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 
 export const deleteBlog = async (req, res, next) => {
   try {
@@ -193,11 +261,11 @@ export const findBlogsBySearch = async (req, res, next) => {
       where: whereSearch,
       include: whereSearchIncludeTags
         ? [
-            {
-              model: Tag,
-              where: whereSearchIncludeTags,
-            },
-          ]
+          {
+            model: Tag,
+            where: whereSearchIncludeTags,
+          },
+        ]
         : [],
     });
     return res.status(200).json(blogs);
