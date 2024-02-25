@@ -32,8 +32,7 @@ export const findProfiles = async (req, res, next) => {
 }
 
 export const findProfileById = async (req, res, next) => {
-    
-    if (!(req.user.isAdmin || req.params.id == req.user.profileId)) {
+
         try {
             const profile = await Profile.findOne({where: {id: req.params.id}, include: 
                 [
@@ -55,17 +54,14 @@ export const findProfileById = async (req, res, next) => {
                 ]
             }
             )
-            const blogs = await profile.getBlogs()
+            const blogs = await profile.getBlogs();
             
-            res.status(200).json({profile,isOwner: false, blogs: blogs})
+            res.status(200).json({profile,isOwner: (req.user.isAdmin || req.params.id == req.user.profileId), blogs: blogs})
         } catch(err) {
             console.error(err)
             next(err)
         }
-    } else {
-        req.profileId = req.params.id
-        res.redirect("/profiles/profile/v2/myprofile")
-    }
+    
 }
 
 export const findProfile = async (req, res, next) => {

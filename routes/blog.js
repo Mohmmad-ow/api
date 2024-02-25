@@ -17,7 +17,4 @@ router.post("/experiment", findBlogsBySearch);
 router.post("/blog/:id/add_tags", updateBlogTags);
 router.get("/blog/:id/add_tags", getBlogTags);
 
-// router.get("/blog/custom/homepage", findBlogsByCategory)
-
-
 export default router

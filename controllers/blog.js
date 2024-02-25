@@ -2,9 +2,10 @@ import Blog from "../models/blog.js";
 import Profile from "../models/profile.js";
 import Tag from "../models/tag.js";
 import Comment from "../models/comments.js";
-import Like from "../models/like.js";
+// import Like from "../models/like.js";
 import { Op, literal } from "sequelize";
 import sequelize from "../models/connection.js";
+import Major from "../models/major.js";
 
 export const createBlog = async (req, res, next) => {
   if (!req.body) {
@@ -13,11 +14,10 @@ export const createBlog = async (req, res, next) => {
   try {
 
     req.body.ProfileId = req.user.profileId;
-
-    Blog.create(req.body);
+    const newBlog = await Blog.create(req.body);
     res
       .status(200)
-      .json({ message: "blog created with the userId of " + req.user.id });
+      .json({ message: "blog created with the userId of " + req.user.id , id: newBlog.id});
   } catch (err) {
     next(err);
   }
@@ -55,9 +55,9 @@ export const findBlog = async (req, res, next) => {
         {
           model: Comment,
           include: [{ model: Profile }],
-          order: [['createdAt', 'DESC']],
 
-        }
+        },
+        {model: Tag}
       ],
     });
 
@@ -68,7 +68,7 @@ export const findBlog = async (req, res, next) => {
       .status(200)
       .json({
         blog: blog,
-        isSameUser: req.user.isAdmin || req.params.id == req.user.profileId,
+        isSameUser: req.user.isAdmin || blog.Profile.id == req.user.profileId,
       });
   } catch (err) {
     next(err);
@@ -81,8 +81,11 @@ export const updateBlog = async (req, res, next) => {
     return res.status(400).json({ message: "No data sent!" });
   }
   try {
-    if (!(req.user.isAdmin || req.user.profileId == req.params.id)) {
-      await Blog.update(req.body, { where: { id: req.params.id } });
+    const blog = await Blog.findOne({where: {id: req.params.id}
+    , include: [{model: Profile, attributes: ['id']}]});
+    console.log(blog.Profile.id)
+    if (req.user.isAdmin || req.user.profileId == blog.Profile.id) {
+      await blog.update(req.body);
       return res.status(200).json({ message: "Blog Updated" });
     } else {
       return res
@@ -99,14 +102,16 @@ export const getBlogTags = async (req, res, next) => {
     const blogId = req.params.id;
     // Fetch tags and their association with the given blog ID in a single query
     const tags = await Tag.findAll({
-      include: {
-        model: Blog,
-        where: { id: blogId },
-        attributes: ['id'],
-        
-        required: false, // Use left join to include tags even if they are not associated with the blog
-
-      }  
+      include: [
+        {
+          model: Blog,
+          where: { id: blogId },
+          attributes: ['id'],
+          
+          required: false, // Use left join to include tags even if they are not associated with the blog
+  
+        },
+      ]
   });
   
 
@@ -118,30 +123,29 @@ export const getBlogTags = async (req, res, next) => {
 }
 
 export const updateBlogTags = async (req, res, next) => {
+  
   try {
     const blog = await Blog.findOne({
       where: { id: req.params.id },
-      include: [
+      include: 
+      [
         { model: Tag },
-        { model: Profile }
+        {model: Profile, attributes: ['id']} 
+      
       ]
     });
-
-    // Check if the user has permission to update tags
-    if (req.user.profileId !== blog.Profile.id && !req.user.isAdmin && !req.user.isManger) {
-      return res.status(403).json({ message: "You are not authorized to update tags for this blog." });
+    
+    if (blog.Profile.id != req.user.profileId) {
+        return res.status(403).json({ message: "Blog doesn't belong to the user." });
     }
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found." });
+    }
+    // Check user authorization here...
 
-    // Extract 'add' and 'remove' arrays from the request body
     const { add, remove } = req.body;
 
-    // Create associations to be added
-    const associationsToAdd = add.map(tagId => ({
-      BlogId: req.params.id,
-      TagId: tagId
-    }));
-
-    // Remove associations based on 'remove' array (if provided)
+    // Remove associations based on 'remove' array
     if (remove && remove.length > 0) {
       await sequelize.models.BlogsTags.destroy({
         where: {
@@ -152,14 +156,23 @@ export const updateBlogTags = async (req, res, next) => {
     }
 
     // Add associations
-    await sequelize.models.BlogsTags.bulkCreate(associationsToAdd);
+    if (add && add.length > 0) {
+      await sequelize.models.BlogsTags.bulkCreate(
+        add.map(tagId => ({
+          BlogId: req.params.id,
+          TagId: tagId
+        })),
+        { ignoreDuplicates: true } // Ignore duplicate associations
+      );
+    }
 
     return res.status(200).json({ message: "Tags updated successfully." });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     return res.status(500).json({ message: "Internal server error." });
   }
 };
+
 
 
 export const deleteBlog = async (req, res, next) => {
@@ -171,10 +184,11 @@ export const deleteBlog = async (req, res, next) => {
         .json({ message: "you're not allowed to delete this post" });
     } else {
       let blog = await Blog.findOne({ where: { id: id } }).then((result) => {
-        return res
-          .status(200)
-          .json({ message: "Blog deleted", blog: result.imgUrl });
+        res
+        .status(200)
+        .json({ message: "Blog deleted", blog: result.imgUrl });
         result.destroy();
+        return;
       });
     }
   } catch (err) {
@@ -275,6 +289,7 @@ export const findBlogsBySearch = async (req, res, next) => {
 };
 
 export const findBlogsByCategory = async (req, res, next) => {
+  console.log(req.user)
   try {
     const blogs = await Blog.findAll({
       include: [
@@ -286,7 +301,13 @@ export const findBlogsByCategory = async (req, res, next) => {
         {
           model: Profile,
           attributes: ["full_name"],
+          include: [{
+            model: Major,
+            where: {id: 1},
+            required: false
+          }]
         },
+       
       ],
     });
 

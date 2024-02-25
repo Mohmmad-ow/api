@@ -31,7 +31,7 @@ export const login = async (req, res, next) => {
     console.log("here")
     console.log(req.body)
     if (req.body.length == 0) {
-        return res.status(400).send({message: "Missing user information"})
+        return res.status(400).send({message: "Missing user information"});
     } 
     try {
         const user = await User.findOne({where: { email: req.body.email },include: [
@@ -80,6 +80,7 @@ export const findClientUser = async (req, res, next) => {
                 include: [
                             {
                                 model: Profile,
+                                required: false
                             }
                         ]
             })
